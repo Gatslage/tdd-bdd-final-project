@@ -104,7 +104,8 @@ class Product(db.Model):
         logger.info("Saving %s", self.name)
         if not self.id:
             raise DataValidationError("Update called with empty ID field")
-        db.session.commit()
+        else:
+            db.session.commit()
 
     def delete(self):
         """Removes a Product from the data store"""
@@ -130,17 +131,20 @@ class Product(db.Model):
             data (dict): A dictionary containing the Product data
         """
         try:
-            self.name = data["name"]
-            self.description = data["description"]
-            self.price = Decimal(data["price"])
             if isinstance(data["available"], bool):
+                self.name = data["name"]
+                self.description = data["description"]
+                self.price = Decimal(data["price"])
                 self.available = data["available"]
+                self.category = getattr(Category, data["category"])  # create enum from string
+                return self
+
             else:
                 raise DataValidationError(
                     "Invalid type for boolean [available]: "
                     + str(type(data["available"]))
                 )
-            self.category = getattr(Category, data["category"])  # create enum from string
+            
         except AttributeError as error:
             raise DataValidationError("Invalid attribute: " + error.args[0]) from error
         except KeyError as error:
@@ -149,7 +153,6 @@ class Product(db.Model):
             raise DataValidationError(
                 "Invalid product: body of request contained bad or no data " + str(error)
             ) from error
-        return self
 
     ##################################################
     # CLASS METHODS
