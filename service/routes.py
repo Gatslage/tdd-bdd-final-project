@@ -120,7 +120,7 @@ def list_products():
     elif available:
         products = Product.find_by_availability(available)
         final_products = [prod.serialize() for prod in products]
-        app.logger.info("[%s] Products final by category", len(final_products))
+        app.logger.info("[%s] Products final by available", len(final_products))
     else:
         products = Product.all()
         final_products = [prod.serialize() for prod in products]
